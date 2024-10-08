@@ -7,6 +7,9 @@ from hello.forms import LogMessageForm
 from hello.models import LogMessage, Movie
 from django.views.generic import ListView
 from django.shortcuts import get_object_or_404
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login
+from django.contrib import messages
 
 def movie_list(request):
     movies = Movie.objects.all()
@@ -57,3 +60,17 @@ def delete_message(request, message_id):
         return redirect("log")
     
     return render(request, "hello/delete_message.html", {"message": message})
+
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            return redirect('home')  # Redirect to a success page
+        else:
+            messages.error(request, 'Invalid username or password.')
+    
+    return render(request, 'login.html')
